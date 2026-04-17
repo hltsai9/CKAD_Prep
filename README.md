@@ -51,3 +51,7 @@ Edit `questions.js`. Each domain is an object in the `CURRICULUM` array; each qu
 5. Services and Networking (20%)
 
 Based on the official [CNCF CKAD curriculum](https://github.com/cncf/curriculum).
+
+## Practice drill sections
+
+In addition to the five curriculum domains above, the quiz ships with seven extra **drill** sections grouped by the legacy topic organization used in the community reference repo [dgkanatsios/CKAD-exercises](https://github.com/dgkanatsios/CKAD-exercises) (MIT-licensed): Core Concepts, Configuration, Multi-Container Pods, Observability, Pod Design, Services & Ingress, and State Persistence. That repo is acknowledged here as topical inspiration only — all question prompts, answer choices, and explanations in this project are originally written.
