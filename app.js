@@ -187,9 +187,51 @@
     pagesEl.querySelectorAll(".page").forEach((p) => {
       p.classList.toggle("active", p.dataset.id === id);
     });
+    // On narrow screens, close the drawer after picking a section
+    closeSidebar();
     // Scroll smoothly to top of main content
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
+  // Sidebar drawer logic (mobile)
+  const sidebarEl = document.getElementById("sidebar");
+  const menuToggleEl = document.getElementById("menuToggle");
+  const backdropEl = document.getElementById("sidebarBackdrop");
+
+  function isDrawerMode() {
+    return window.matchMedia("(max-width: 900px)").matches;
+  }
+  function openSidebar() {
+    if (!sidebarEl) return;
+    sidebarEl.classList.add("open");
+    if (backdropEl) backdropEl.classList.add("show");
+    if (menuToggleEl) menuToggleEl.setAttribute("aria-expanded", "true");
+  }
+  function closeSidebar() {
+    if (!sidebarEl) return;
+    sidebarEl.classList.remove("open");
+    if (backdropEl) backdropEl.classList.remove("show");
+    if (menuToggleEl) menuToggleEl.setAttribute("aria-expanded", "false");
+  }
+  function toggleSidebar() {
+    if (!sidebarEl) return;
+    if (sidebarEl.classList.contains("open")) closeSidebar();
+    else openSidebar();
+  }
+
+  if (menuToggleEl) {
+    menuToggleEl.addEventListener("click", toggleSidebar);
+  }
+  if (backdropEl) {
+    backdropEl.addEventListener("click", closeSidebar);
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isDrawerMode()) closeSidebar();
+  });
+  // If the viewport is resized back to desktop, ensure drawer state is reset
+  window.addEventListener("resize", () => {
+    if (!isDrawerMode()) closeSidebar();
+  });
 
   // Bootstrap
   if (typeof CURRICULUM === "undefined") {

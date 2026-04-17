@@ -4,61 +4,159 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CKAD Practice Quiz</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%A2%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B8%3C/text%3E%3C/svg%3E" />
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: #121a33;
-      --panel-2: #1a2446;
-      --border: #243058;
-      --text: #e7ecff;
-      --muted: #9aa6cf;
-      --accent: #326ce5;       /* Kubernetes blue */
-      --accent-2: #4f8bff;
-      --good: #2ecc71;
-      --bad: #ff6b6b;
-      --warn: #f1c40f;
-      --code-bg: #0a1430;
+      /* Pink theme — blush backgrounds, hot-pink / rose primary */
+      --bg: #fff5f8;
+      --panel: #ffffff;
+      --panel-2: #ffeaf1;
+      --border: #f5c2d6;
+      --border-strong: #eb86ac;
+      --text: #3d0a1f;
+      --muted: #8a4a63;
+      --accent: #e91e63;       /* hot pink / rose primary */
+      --accent-2: #ff4081;     /* brighter pink for hover / highlights */
+      --accent-soft: #ffd6e4;  /* soft blush for subtle backgrounds */
+      --good: #2e8b57;
+      --bad: #c62828;
+      --warn: #e65100;
+      --code-bg: #3a0a1d;      /* deep rose for code blocks */
+      --code-text: #ffd5e5;
+      --code-border: #5a1730;
+      --shadow: 0 4px 14px rgba(233, 30, 99, 0.08);
+      --sidebar-width: 260px;
+      --header-height: 72px;
     }
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    a { color: var(--accent-2); }
-    header {
-      padding: 20px 24px;
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, #0e1530 0%, #0b1020 100%);
-      position: sticky; top: 0; z-index: 10;
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-    header h1 { margin: 0 0 4px; font-size: 20px; }
+    a { color: var(--accent); }
+    a:hover { color: var(--accent-2); }
+
+    header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #ffe0ec 0%, #ffeaf1 100%);
+      position: sticky; top: 0; z-index: 30;
+      box-shadow: var(--shadow);
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+    header h1 { margin: 0 0 4px; font-size: 20px; color: var(--text); }
     header p { margin: 0; color: var(--muted); font-size: 13px; }
-    main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+
+    .menu-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 40px; height: 40px;
+      font-size: 20px;
+      background: var(--panel);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .menu-toggle:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .menu-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Layout: sidebar (left) + content (right) */
+    .layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      max-width: 1320px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: var(--header-height);
+      height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+      padding: 20px 14px;
+      border-right: 1px solid var(--border);
+      background: linear-gradient(180deg, #fff5f8 0%, #ffeaf1 100%);
+    }
+    .sidebar-title {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 4px 10px 12px;
+      font-weight: 700;
+    }
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(61, 10, 31, 0.35);
+      z-index: 25;
+    }
+    .sidebar-backdrop.show { display: block; }
 
     nav.tabs {
-      display: flex; flex-wrap: wrap; gap: 6px;
-      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
     nav.tabs button {
       background: var(--panel);
       color: var(--text);
       border: 1px solid var(--border);
-      padding: 10px 14px;
-      border-radius: 999px;
+      padding: 11px 14px;
+      border-radius: 10px;
       font-size: 13px;
       cursor: pointer;
-      transition: background .15s, border-color .15s, transform .05s;
+      text-align: left;
+      width: 100%;
+      transition: background .15s, border-color .15s, color .15s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-family: inherit;
     }
-    nav.tabs button:hover { border-color: var(--accent-2); }
+    nav.tabs button:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    nav.tabs button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
     nav.tabs button.active {
       background: var(--accent);
       border-color: var(--accent);
-      color: #fff;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(233, 30, 99, 0.25);
     }
     nav.tabs .weight {
       color: var(--muted);
       font-size: 11px;
-      margin-left: 6px;
+      flex-shrink: 0;
     }
-    nav.tabs button.active .weight { color: #e7ecff; }
+    nav.tabs button.active .weight { color: #ffe0ec; }
+
+    main {
+      padding: 24px 28px 64px;
+      min-width: 0; /* prevent grid overflow with long code blocks */
+    }
+    .main-inner { max-width: 960px; margin: 0 auto; }
 
     .page { display: none; }
     .page.active { display: block; }
@@ -66,11 +164,12 @@
     .domain-head {
       background: var(--panel);
       border: 1px solid var(--border);
-      padding: 16px 18px;
+      padding: 18px 20px;
       border-radius: 12px;
       margin-bottom: 16px;
+      box-shadow: var(--shadow);
     }
-    .domain-head h2 { margin: 0 0 6px; font-size: 18px; }
+    .domain-head h2 { margin: 0 0 6px; font-size: 20px; color: var(--accent); }
     .domain-head p { margin: 0; color: var(--muted); font-size: 14px; }
 
     .progress {
@@ -87,10 +186,12 @@
     }
     .progress .score { color: var(--text); font-weight: 600; }
     .bar {
-      flex: 1; height: 6px; background: #0a1330; border-radius: 999px; margin: 0 12px; overflow: hidden;
+      flex: 1; height: 6px; background: var(--accent-soft); border-radius: 999px; margin: 0 12px; overflow: hidden;
     }
     .bar > span {
-      display: block; height: 100%; background: var(--accent-2); width: 0%;
+      display: block; height: 100%;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%);
+      width: 0%;
       transition: width .25s;
     }
 
@@ -100,33 +201,35 @@
       border-radius: 12px;
       padding: 18px;
       margin-bottom: 14px;
+      box-shadow: var(--shadow);
     }
     .question .type-tag {
       display: inline-block;
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: .08em;
-      padding: 3px 8px;
+      padding: 3px 10px;
       border-radius: 999px;
-      background: var(--panel-2);
+      background: var(--accent-soft);
       border: 1px solid var(--border);
-      color: var(--muted);
+      color: var(--accent);
+      font-weight: 600;
       margin-bottom: 10px;
     }
-    .question .prompt { font-size: 15px; line-height: 1.5; margin: 0 0 10px; }
+    .question .prompt { font-size: 15px; line-height: 1.5; margin: 0 0 10px; color: var(--text); }
     pre.yaml {
       background: var(--code-bg);
-      border: 1px solid var(--border);
+      border: 1px solid var(--code-border);
       border-radius: 8px;
       padding: 12px 14px;
       font-size: 13px;
       overflow-x: auto;
-      color: #d3deff;
+      color: var(--code-text);
       margin: 0 0 12px;
       font-family: "SFMono-Regular", Menlo, Consolas, monospace;
     }
     pre.yaml .blank {
-      background: #33406d;
+      background: var(--accent-2);
       color: #fff;
       padding: 1px 6px;
       border-radius: 4px;
@@ -146,20 +249,23 @@
       font-family: inherit;
       transition: border-color .15s, background .15s;
     }
-    .choice:hover:not([disabled]) { border-color: var(--accent-2); }
+    .choice:hover:not([disabled]) { border-color: var(--accent); background: var(--accent-soft); }
+    .choice:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .choice[disabled] { cursor: default; }
     .choice.correct {
       border-color: var(--good);
-      background: rgba(46, 204, 113, 0.12);
+      background: rgba(46, 139, 87, 0.12);
+      color: var(--text);
     }
     .choice.wrong {
       border-color: var(--bad);
-      background: rgba(255, 107, 107, 0.12);
+      background: rgba(198, 40, 40, 0.10);
+      color: var(--text);
     }
     .choice .letter {
       display: inline-block;
       width: 20px;
-      color: var(--muted);
+      color: var(--accent);
       font-weight: 700;
       margin-right: 8px;
     }
@@ -171,7 +277,7 @@
       padding: 12px 14px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      background: var(--code-bg);
+      background: var(--accent-soft);
       font-size: 14px;
       display: none;
     }
@@ -179,7 +285,7 @@
     .feedback .verdict { font-weight: 700; margin-bottom: 6px; }
     .feedback .verdict.good { color: var(--good); }
     .feedback .verdict.bad { color: var(--bad); }
-    .feedback .explain { color: var(--muted); line-height: 1.5; }
+    .feedback .explain { color: var(--text); line-height: 1.5; }
     .feedback .doc-link {
       display: inline-block;
       margin-top: 10px;
@@ -187,10 +293,12 @@
       padding: 6px 10px;
       border: 1px solid var(--accent);
       border-radius: 6px;
-      color: var(--accent-2);
+      color: var(--accent);
+      background: #fff;
       text-decoration: none;
+      font-weight: 600;
     }
-    .feedback .doc-link:hover { background: rgba(50, 108, 229, 0.12); }
+    .feedback .doc-link:hover { background: var(--accent); color: #fff; }
 
     .footer-actions {
       display: flex; justify-content: space-between; align-items: center;
@@ -205,44 +313,95 @@
       font-size: 14px;
       cursor: pointer;
       font-family: inherit;
+      font-weight: 600;
     }
     .btn.secondary {
       background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
+      border: 1px solid var(--border-strong);
+      color: var(--accent);
     }
-    .btn:hover { filter: brightness(1.1); }
+    .btn:hover { filter: brightness(1.08); }
+    .btn.secondary:hover { background: var(--accent-soft); }
 
-    footer {
+    footer.site-footer {
       text-align: center;
       color: var(--muted);
       font-size: 12px;
       padding: 24px;
       border-top: 1px solid var(--border);
+      margin-top: 32px;
     }
+
+    /* Responsive: collapse sidebar into a drawer on narrow screens */
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .menu-toggle { display: inline-flex; }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: min(280px, 82vw);
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform .22s ease;
+        z-index: 40;
+        border-right: 1px solid var(--border-strong);
+        box-shadow: 4px 0 18px rgba(233, 30, 99, 0.18);
+        padding-top: 20px;
+      }
+      .sidebar.open { transform: translateX(0); }
+      main { padding: 20px 16px 64px; }
+    }
+
     @media (max-width: 640px) {
-      header h1 { font-size: 18px; }
-      nav.tabs button { padding: 8px 10px; font-size: 12px; }
+      header { padding: 12px 16px; }
+      header h1 { font-size: 17px; }
+      header p { font-size: 12px; }
       .question { padding: 14px; }
+      .domain-head h2 { font-size: 18px; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>⛵️ CKAD Practice Quiz</h1>
-    <p>Certified Kubernetes Application Developer — curriculum practice questions with official doc references.</p>
+    <div class="header-inner">
+      <button
+        type="button"
+        class="menu-toggle"
+        id="menuToggle"
+        aria-label="Toggle sections menu"
+        aria-controls="sidebar"
+        aria-expanded="false"
+      >☰</button>
+      <div>
+        <h1>🌸 CKAD Practice Quiz</h1>
+        <p>Certified Kubernetes Application Developer — curriculum practice questions with official doc references.</p>
+      </div>
+    </div>
   </header>
 
-  <main>
-    <nav class="tabs" id="tabs" aria-label="Curriculum domains"></nav>
-    <div id="pages"></div>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-    <footer>
-      Based on the official
-      <a href="https://github.com/cncf/curriculum" target="_blank" rel="noopener">CNCF CKAD curriculum</a>.
-      Answers link to <a href="https://kubernetes.io/docs/" target="_blank" rel="noopener">kubernetes.io</a>.
-    </footer>
-  </main>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-title">Curriculum</div>
+      <nav class="tabs" id="tabs" aria-label="Curriculum domains"></nav>
+    </aside>
+
+    <main>
+      <div class="main-inner">
+        <div id="pages"></div>
+
+        <footer class="site-footer">
+          Based on the official
+          <a href="https://github.com/cncf/curriculum" target="_blank" rel="noopener">CNCF CKAD curriculum</a>.
+          Answers link to <a href="https://kubernetes.io/docs/" target="_blank" rel="noopener">kubernetes.io</a>.
+        </footer>
+      </div>
+    </main>
+  </div>
 
   <script src="questions.js"></script>
   <script src="app.js"></script>
