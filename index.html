@@ -5,9 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CKAD Practice Quiz</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B8%3C/text%3E%3C/svg%3E" />
+
+  <!-- Apply saved theme before CSS paints to avoid flash of wrong theme. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('ckad-theme');
+        var valid = ['pink', 'blue', 'forest', 'amber', 'midnight'];
+        if (t && valid.indexOf(t) >= 0) {
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      } catch (_) { /* private mode / storage disabled — fall back to default */ }
+    })();
+  </script>
+
   <style>
-    :root {
-      /* Pink theme — blush backgrounds, hot-pink / rose primary */
+    /* =============================================================
+       Theme tokens.
+       Pink is the default (defined on :root). Other themes override
+       via [data-theme="..."]. Every color used across the UI is
+       expressed as a token here so switching a theme is a single
+       attribute change.
+       ============================================================= */
+    :root,
+    :root[data-theme="pink"] {
       --bg: #fff5f8;
       --panel: #ffffff;
       --panel-2: #ffeaf1;
@@ -15,19 +36,153 @@
       --border-strong: #eb86ac;
       --text: #3d0a1f;
       --muted: #8a4a63;
-      --accent: #e91e63;       /* hot pink / rose primary */
-      --accent-2: #ff4081;     /* brighter pink for hover / highlights */
-      --accent-soft: #ffd6e4;  /* soft blush for subtle backgrounds */
+      --accent: #e91e63;
+      --accent-2: #ff4081;
+      --accent-soft: #ffd6e4;
+      --accent-on: #ffffff;
       --good: #2e8b57;
       --bad: #c62828;
       --warn: #e65100;
-      --code-bg: #3a0a1d;      /* deep rose for code blocks */
+      --code-bg: #3a0a1d;
       --code-text: #ffd5e5;
       --code-border: #5a1730;
       --shadow: 0 4px 14px rgba(233, 30, 99, 0.08);
+      --header-grad: linear-gradient(180deg, #ffe0ec 0%, #ffeaf1 100%);
+      --sidebar-grad: linear-gradient(180deg, #fff5f8 0%, #ffeaf1 100%);
+      --drawer-backdrop: rgba(61, 10, 31, 0.35);
+      --drawer-shadow: 4px 0 18px rgba(233, 30, 99, 0.18);
+      --active-weight: #ffe0ec;
+      --active-shadow: 0 2px 8px rgba(233, 30, 99, 0.25);
+      --doc-link-bg: #ffffff;
+      --correct-bg: rgba(46, 139, 87, 0.12);
+      --wrong-bg: rgba(198, 40, 40, 0.10);
+    }
+
+    :root[data-theme="blue"] {
+      --bg: #eff8fc;
+      --panel: #ffffff;
+      --panel-2: #dff3fb;
+      --border: #bae6fd;
+      --border-strong: #7dd3fc;
+      --text: #0b2a3d;
+      --muted: #4a6b80;
+      --accent: #0284c7;
+      --accent-2: #0ea5e9;
+      --accent-soft: #cff0fb;
+      --accent-on: #ffffff;
+      --good: #059669;
+      --bad: #dc2626;
+      --warn: #d97706;
+      --code-bg: #0c1f2e;
+      --code-text: #cffafe;
+      --code-border: #1e3a52;
+      --shadow: 0 4px 14px rgba(2, 132, 199, 0.10);
+      --header-grad: linear-gradient(180deg, #cffafe 0%, #e0f2fe 100%);
+      --sidebar-grad: linear-gradient(180deg, #eff8fc 0%, #dff3fb 100%);
+      --drawer-backdrop: rgba(11, 42, 61, 0.40);
+      --drawer-shadow: 4px 0 18px rgba(2, 132, 199, 0.22);
+      --active-weight: #cffafe;
+      --active-shadow: 0 2px 8px rgba(2, 132, 199, 0.28);
+      --doc-link-bg: #ffffff;
+      --correct-bg: rgba(5, 150, 105, 0.12);
+      --wrong-bg: rgba(220, 38, 38, 0.10);
+    }
+
+    :root[data-theme="forest"] {
+      --bg: #f0fbf4;
+      --panel: #ffffff;
+      --panel-2: #d1fae5;
+      --border: #bbf7d0;
+      --border-strong: #86efac;
+      --text: #0a2b1b;
+      --muted: #3e6d55;
+      --accent: #047857;
+      --accent-2: #059669;
+      --accent-soft: #d1fae5;
+      --accent-on: #ffffff;
+      --good: #16a34a;
+      --bad: #dc2626;
+      --warn: #d97706;
+      --code-bg: #0a2e1e;
+      --code-text: #a7f3d0;
+      --code-border: #14532d;
+      --shadow: 0 4px 14px rgba(4, 120, 87, 0.10);
+      --header-grad: linear-gradient(180deg, #bbf7d0 0%, #dcfce7 100%);
+      --sidebar-grad: linear-gradient(180deg, #f0fbf4 0%, #d1fae5 100%);
+      --drawer-backdrop: rgba(10, 43, 27, 0.40);
+      --drawer-shadow: 4px 0 18px rgba(4, 120, 87, 0.22);
+      --active-weight: #dcfce7;
+      --active-shadow: 0 2px 8px rgba(4, 120, 87, 0.28);
+      --doc-link-bg: #ffffff;
+      --correct-bg: rgba(22, 163, 74, 0.14);
+      --wrong-bg: rgba(220, 38, 38, 0.10);
+    }
+
+    :root[data-theme="amber"] {
+      --bg: #fff8ed;
+      --panel: #ffffff;
+      --panel-2: #ffedd5;
+      --border: #fdba74;
+      --border-strong: #fb923c;
+      --text: #3d1d00;
+      --muted: #805a2c;
+      --accent: #c2410c;
+      --accent-2: #ea580c;
+      --accent-soft: #ffedd5;
+      --accent-on: #ffffff;
+      --good: #15803d;
+      --bad: #b91c1c;
+      --warn: #a16207;
+      --code-bg: #2a1506;
+      --code-text: #fed7aa;
+      --code-border: #4a2010;
+      --shadow: 0 4px 14px rgba(194, 65, 12, 0.10);
+      --header-grad: linear-gradient(180deg, #ffedd5 0%, #fed7aa 100%);
+      --sidebar-grad: linear-gradient(180deg, #fff8ed 0%, #ffedd5 100%);
+      --drawer-backdrop: rgba(61, 29, 0, 0.40);
+      --drawer-shadow: 4px 0 18px rgba(194, 65, 12, 0.22);
+      --active-weight: #ffedd5;
+      --active-shadow: 0 2px 8px rgba(194, 65, 12, 0.28);
+      --doc-link-bg: #ffffff;
+      --correct-bg: rgba(21, 128, 61, 0.14);
+      --wrong-bg: rgba(185, 28, 28, 0.12);
+    }
+
+    :root[data-theme="midnight"] {
+      --bg: #0b1222;
+      --panel: #131c35;
+      --panel-2: #1a2547;
+      --border: #2a3660;
+      --border-strong: #3d4d87;
+      --text: #e7ecff;
+      --muted: #94a3c7;
+      --accent: #a5b4fc;           /* light indigo — readable text on dark panels */
+      --accent-2: #c7d2fe;
+      --accent-soft: rgba(129, 140, 248, 0.22);
+      --accent-on: #0b1222;        /* dark text on light accent bg */
+      --good: #34d399;
+      --bad: #f87171;
+      --warn: #fbbf24;
+      --code-bg: #070a18;
+      --code-text: #d3deff;
+      --code-border: #1c2750;
+      --shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+      --header-grad: linear-gradient(180deg, #141c38 0%, #0e1429 100%);
+      --sidebar-grad: linear-gradient(180deg, #0f172f 0%, #131c35 100%);
+      --drawer-backdrop: rgba(0, 0, 0, 0.55);
+      --drawer-shadow: 4px 0 20px rgba(0, 0, 0, 0.55);
+      --active-weight: #3b4287;
+      --active-shadow: 0 2px 10px rgba(129, 140, 248, 0.40);
+      --doc-link-bg: var(--panel);
+      --correct-bg: rgba(52, 211, 153, 0.16);
+      --wrong-bg: rgba(248, 113, 113, 0.16);
+    }
+
+    :root {
       --sidebar-width: 260px;
       --header-height: 72px;
     }
+
     * { box-sizing: border-box; }
     html, body {
       margin: 0; padding: 0;
@@ -41,7 +196,7 @@
     header {
       padding: 16px 24px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, #ffe0ec 0%, #ffeaf1 100%);
+      background: var(--header-grad);
       position: sticky; top: 0; z-index: 30;
       box-shadow: var(--shadow);
     }
@@ -52,8 +207,12 @@
       max-width: 1320px;
       margin: 0 auto;
     }
+    .header-title { min-width: 0; flex: 1 1 auto; }
     header h1 { margin: 0 0 4px; font-size: 20px; color: var(--text); }
-    header p { margin: 0; color: var(--muted); font-size: 13px; }
+    header p {
+      margin: 0; color: var(--muted); font-size: 13px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
 
     .menu-toggle {
       display: none;
@@ -67,11 +226,51 @@
       border-radius: 10px;
       cursor: pointer;
       padding: 0;
+      flex-shrink: 0;
     }
     .menu-toggle:hover { border-color: var(--accent); background: var(--accent-soft); }
-    .menu-toggle:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
+    .menu-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Theme switcher — row of swatches in the header */
+    .theme-switcher {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .theme-switcher .label {
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-right: 4px;
+      font-weight: 700;
+    }
+    .theme-swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      cursor: pointer;
+      padding: 0;
+      background-clip: padding-box;
+      transition: transform .12s, box-shadow .12s;
+    }
+    .theme-swatch:hover { transform: scale(1.15); }
+    .theme-swatch:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+    .theme-swatch.active {
+      box-shadow:
+        0 0 0 2px var(--panel),
+        0 0 0 4px currentColor;
+    }
+    /* currentColor on each swatch = its represented accent, used for the active ring */
+    .theme-swatch[data-swatch="pink"]     { background: #e91e63; color: #e91e63; }
+    .theme-swatch[data-swatch="blue"]     { background: #0284c7; color: #0284c7; }
+    .theme-swatch[data-swatch="forest"]   { background: #047857; color: #047857; }
+    .theme-swatch[data-swatch="amber"]    { background: #c2410c; color: #c2410c; }
+    .theme-swatch[data-swatch="midnight"] {
+      background: linear-gradient(135deg, #0b1222 0%, #0b1222 50%, #a5b4fc 50%, #a5b4fc 100%);
+      color: #a5b4fc;
     }
 
     /* Layout: sidebar (left) + content (right) */
@@ -90,7 +289,7 @@
       overflow-y: auto;
       padding: 20px 14px;
       border-right: 1px solid var(--border);
-      background: linear-gradient(180deg, #fff5f8 0%, #ffeaf1 100%);
+      background: var(--sidebar-grad);
     }
     .sidebar-title {
       font-size: 11px;
@@ -104,7 +303,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(61, 10, 31, 0.35);
+      background: var(--drawer-backdrop);
       z-index: 25;
     }
     .sidebar-backdrop.show { display: block; }
@@ -142,15 +341,15 @@
     nav.tabs button.active {
       background: var(--accent);
       border-color: var(--accent);
-      color: #ffffff;
-      box-shadow: 0 2px 8px rgba(233, 30, 99, 0.25);
+      color: var(--accent-on);
+      box-shadow: var(--active-shadow);
     }
     nav.tabs .weight {
       color: var(--muted);
       font-size: 11px;
       flex-shrink: 0;
     }
-    nav.tabs button.active .weight { color: #ffe0ec; }
+    nav.tabs button.active .weight { color: var(--active-weight); }
 
     main {
       padding: 24px 28px 64px;
@@ -230,7 +429,7 @@
     }
     pre.yaml .blank {
       background: var(--accent-2);
-      color: #fff;
+      color: var(--accent-on);
       padding: 1px 6px;
       border-radius: 4px;
       font-weight: 700;
@@ -254,12 +453,12 @@
     .choice[disabled] { cursor: default; }
     .choice.correct {
       border-color: var(--good);
-      background: rgba(46, 139, 87, 0.12);
+      background: var(--correct-bg);
       color: var(--text);
     }
     .choice.wrong {
       border-color: var(--bad);
-      background: rgba(198, 40, 40, 0.10);
+      background: var(--wrong-bg);
       color: var(--text);
     }
     .choice .letter {
@@ -294,11 +493,11 @@
       border: 1px solid var(--accent);
       border-radius: 6px;
       color: var(--accent);
-      background: #fff;
+      background: var(--doc-link-bg);
       text-decoration: none;
       font-weight: 600;
     }
-    .feedback .doc-link:hover { background: var(--accent); color: #fff; }
+    .feedback .doc-link:hover { background: var(--accent); color: var(--accent-on); }
 
     .footer-actions {
       display: flex; justify-content: space-between; align-items: center;
@@ -306,7 +505,7 @@
     }
     .btn {
       background: var(--accent);
-      color: #fff;
+      color: var(--accent-on);
       border: none;
       padding: 10px 16px;
       border-radius: 8px;
@@ -334,9 +533,7 @@
 
     /* Responsive: collapse sidebar into a drawer on narrow screens */
     @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
+      .layout { grid-template-columns: 1fr; }
       .menu-toggle { display: inline-flex; }
       .sidebar {
         position: fixed;
@@ -348,19 +545,22 @@
         transition: transform .22s ease;
         z-index: 40;
         border-right: 1px solid var(--border-strong);
-        box-shadow: 4px 0 18px rgba(233, 30, 99, 0.18);
+        box-shadow: var(--drawer-shadow);
         padding-top: 20px;
       }
       .sidebar.open { transform: translateX(0); }
       main { padding: 20px 16px 64px; }
+      .theme-switcher .label { display: none; }
+      header p { display: none; }
     }
 
     @media (max-width: 640px) {
       header { padding: 12px 16px; }
-      header h1 { font-size: 17px; }
-      header p { font-size: 12px; }
+      header h1 { font-size: 16px; }
       .question { padding: 14px; }
       .domain-head h2 { font-size: 18px; }
+      .theme-switcher { gap: 6px; }
+      .theme-swatch { width: 20px; height: 20px; }
     }
   </style>
 </head>
@@ -375,9 +575,17 @@
         aria-controls="sidebar"
         aria-expanded="false"
       >☰</button>
-      <div>
+      <div class="header-title">
         <h1>🌸 CKAD Practice Quiz</h1>
         <p>Certified Kubernetes Application Developer — curriculum practice questions with official doc references.</p>
+      </div>
+      <div class="theme-switcher" id="themeSwitcher" role="group" aria-label="Color theme">
+        <span class="label">Theme</span>
+        <button type="button" class="theme-swatch" data-swatch="pink"     aria-label="Pink theme"     title="Pink"></button>
+        <button type="button" class="theme-swatch" data-swatch="blue"     aria-label="Ocean theme"    title="Ocean"></button>
+        <button type="button" class="theme-swatch" data-swatch="forest"   aria-label="Forest theme"   title="Forest"></button>
+        <button type="button" class="theme-swatch" data-swatch="amber"    aria-label="Amber theme"    title="Amber"></button>
+        <button type="button" class="theme-swatch" data-swatch="midnight" aria-label="Midnight theme" title="Midnight"></button>
       </div>
     </div>
   </header>

@@ -193,6 +193,33 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  // Theme switcher: apply saved theme, wire up swatches, persist selection.
+  const THEMES = ["pink", "blue", "forest", "amber", "midnight"];
+  const THEME_STORAGE_KEY = "ckad-theme";
+
+  function currentTheme() {
+    const attr = document.documentElement.getAttribute("data-theme");
+    return THEMES.indexOf(attr) >= 0 ? attr : "pink";
+  }
+
+  function applyTheme(name) {
+    if (THEMES.indexOf(name) < 0) name = "pink";
+    document.documentElement.setAttribute("data-theme", name);
+    try { localStorage.setItem(THEME_STORAGE_KEY, name); } catch (_) {}
+    document.querySelectorAll(".theme-swatch").forEach((s) => {
+      const active = s.dataset.swatch === name;
+      s.classList.toggle("active", active);
+      s.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+
+  // Sync switcher UI with whatever the inline <head> script already applied,
+  // then wire up clicks.
+  applyTheme(currentTheme());
+  document.querySelectorAll(".theme-swatch").forEach((s) => {
+    s.addEventListener("click", () => applyTheme(s.dataset.swatch));
+  });
+
   // Sidebar drawer logic (mobile)
   const sidebarEl = document.getElementById("sidebar");
   const menuToggleEl = document.getElementById("menuToggle");
