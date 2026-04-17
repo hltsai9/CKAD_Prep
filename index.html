@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CKAD Practice Quiz</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%A2%3C/text%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121a33;
+      --panel-2: #1a2446;
+      --border: #243058;
+      --text: #e7ecff;
+      --muted: #9aa6cf;
+      --accent: #326ce5;       /* Kubernetes blue */
+      --accent-2: #4f8bff;
+      --good: #2ecc71;
+      --bad: #ff6b6b;
+      --warn: #f1c40f;
+      --code-bg: #0a1430;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    a { color: var(--accent-2); }
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #0e1530 0%, #0b1020 100%);
+      position: sticky; top: 0; z-index: 10;
+    }
+    header h1 { margin: 0 0 4px; font-size: 20px; }
+    header p { margin: 0; color: var(--muted); font-size: 13px; }
+    main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+
+    nav.tabs {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-bottom: 20px;
+    }
+    nav.tabs button {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, transform .05s;
+    }
+    nav.tabs button:hover { border-color: var(--accent-2); }
+    nav.tabs button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    nav.tabs .weight {
+      color: var(--muted);
+      font-size: 11px;
+      margin-left: 6px;
+    }
+    nav.tabs button.active .weight { color: #e7ecff; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .domain-head {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 16px 18px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .domain-head h2 { margin: 0 0 6px; font-size: 18px; }
+    .domain-head p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .progress {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .progress .score { color: var(--text); font-weight: 600; }
+    .bar {
+      flex: 1; height: 6px; background: #0a1330; border-radius: 999px; margin: 0 12px; overflow: hidden;
+    }
+    .bar > span {
+      display: block; height: 100%; background: var(--accent-2); width: 0%;
+      transition: width .25s;
+    }
+
+    .question {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .question .type-tag {
+      display: inline-block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .question .prompt { font-size: 15px; line-height: 1.5; margin: 0 0 10px; }
+    pre.yaml {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      overflow-x: auto;
+      color: #d3deff;
+      margin: 0 0 12px;
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+    }
+    pre.yaml .blank {
+      background: #33406d;
+      color: #fff;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .choices { display: flex; flex-direction: column; gap: 8px; }
+    .choice {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text);
+      text-align: left;
+      font-family: inherit;
+      transition: border-color .15s, background .15s;
+    }
+    .choice:hover:not([disabled]) { border-color: var(--accent-2); }
+    .choice[disabled] { cursor: default; }
+    .choice.correct {
+      border-color: var(--good);
+      background: rgba(46, 204, 113, 0.12);
+    }
+    .choice.wrong {
+      border-color: var(--bad);
+      background: rgba(255, 107, 107, 0.12);
+    }
+    .choice .letter {
+      display: inline-block;
+      width: 20px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .choice.correct .letter { color: var(--good); }
+    .choice.wrong .letter { color: var(--bad); }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--code-bg);
+      font-size: 14px;
+      display: none;
+    }
+    .feedback.show { display: block; }
+    .feedback .verdict { font-weight: 700; margin-bottom: 6px; }
+    .feedback .verdict.good { color: var(--good); }
+    .feedback .verdict.bad { color: var(--bad); }
+    .feedback .explain { color: var(--muted); line-height: 1.5; }
+    .feedback .doc-link {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 13px;
+      padding: 6px 10px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      color: var(--accent-2);
+      text-decoration: none;
+    }
+    .feedback .doc-link:hover { background: rgba(50, 108, 229, 0.12); }
+
+    .footer-actions {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 20px; gap: 12px; flex-wrap: wrap;
+    }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn.secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn:hover { filter: brightness(1.1); }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 24px;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 640px) {
+      header h1 { font-size: 18px; }
+      nav.tabs button { padding: 8px 10px; font-size: 12px; }
+      .question { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>⛵️ CKAD Practice Quiz</h1>
+    <p>Certified Kubernetes Application Developer — curriculum practice questions with official doc references.</p>
+  </header>
+
+  <main>
+    <nav class="tabs" id="tabs" aria-label="Curriculum domains"></nav>
+    <div id="pages"></div>
+
+    <footer>
+      Based on the official
+      <a href="https://github.com/cncf/curriculum" target="_blank" rel="noopener">CNCF CKAD curriculum</a>.
+      Answers link to <a href="https://kubernetes.io/docs/" target="_blank" rel="noopener">kubernetes.io</a>.
+    </footer>
+  </main>
+
+  <script src="questions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
