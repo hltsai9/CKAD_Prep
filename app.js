@@ -1,12 +1,56 @@
-// CKAD Quiz app logic: renders tabs and per-domain pages, scores answers,
-// and reveals the official doc reference only after the user answers.
+// Kubestronaut quiz app logic: renders an exam picker, per-exam section tabs
+// and pages, scores answers, and reveals the official doc reference only
+// after the user answers.
 
 (function () {
+  const examTabsEl = document.getElementById("examTabs");
   const tabsEl = document.getElementById("tabs");
   const pagesEl = document.getElementById("pages");
 
-  // Track per-domain state: { [domainId]: { answers: {qIndex: chosenIndex}, score } }
+  // Assemble the five Kubestronaut exams. Each question bank file defines its
+  // own global; guard each so a missing file degrades to a skipped exam
+  // instead of breaking the whole app.
+  const EXAMS = [
+    {
+      id: "cka",
+      label: "CKA",
+      name: "Certified Kubernetes Administrator",
+      curriculum: typeof CKA_CURRICULUM !== "undefined" ? CKA_CURRICULUM : null
+    },
+    {
+      id: "ckad",
+      label: "CKAD",
+      name: "Certified Kubernetes Application Developer",
+      curriculum: typeof CURRICULUM !== "undefined" ? CURRICULUM : null
+    },
+    {
+      id: "cks",
+      label: "CKS",
+      name: "Certified Kubernetes Security Specialist",
+      curriculum: typeof CKS_CURRICULUM !== "undefined" ? CKS_CURRICULUM : null
+    },
+    {
+      id: "kcna",
+      label: "KCNA",
+      name: "Kubernetes and Cloud Native Associate",
+      curriculum: typeof KCNA_CURRICULUM !== "undefined" ? KCNA_CURRICULUM : null
+    },
+    {
+      id: "kcsa",
+      label: "KCSA",
+      name: "Kubernetes and Cloud Native Security Associate",
+      curriculum: typeof KCSA_CURRICULUM !== "undefined" ? KCSA_CURRICULUM : null
+    }
+  ].filter((e) => Array.isArray(e.curriculum) && e.curriculum.length > 0);
+
+  const EXAM_STORAGE_KEY = "kubestronaut-exam";
+
+  // Track per-domain state: { [domainId]: { answers: {qIndex: chosenIndex}, total } }
   const state = {};
+  // Domain ids are globally unique across exams; map them back to their data.
+  const domainById = {};
+  // Remember the last-open section per exam so switching exams feels sticky.
+  const lastDomainByExam = {};
 
   function typeLabel(type) {
     switch (type) {
@@ -34,24 +78,36 @@
     return String.fromCharCode(65 + i); // A, B, C, D
   }
 
-  function buildTab(domain, idx) {
+  function buildExamTab(exam) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.dataset.exam = exam.id;
+    btn.textContent = exam.label;
+    btn.title = exam.name;
+    btn.addEventListener("click", () => setExam(exam.id));
+    examTabsEl.appendChild(btn);
+  }
+
+  function buildTab(exam, domain) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.dataset.id = domain.id;
+    btn.dataset.exam = exam.id;
     btn.innerHTML = `${escapeHtml(domain.title)} <span class="weight">${domain.weight}</span>`;
-    if (idx === 0) btn.classList.add("active");
     btn.addEventListener("click", () => setActive(domain.id));
     tabsEl.appendChild(btn);
   }
 
-  function buildPage(domain, idx) {
+  function buildPage(exam, domain) {
     const page = document.createElement("section");
-    page.className = "page" + (idx === 0 ? " active" : "");
+    page.className = "page";
     page.dataset.id = domain.id;
+    page.dataset.exam = exam.id;
 
     const head = document.createElement("div");
     head.className = "domain-head";
     head.innerHTML = `
+      <div class="exam-tag">${escapeHtml(exam.label)} · ${escapeHtml(exam.name)}</div>
       <h2>${escapeHtml(domain.title)} <span style="color:var(--muted);font-weight:400;font-size:13px">(${domain.weight})</span></h2>
       <p>${escapeHtml(domain.description)}</p>
     `;
@@ -81,6 +137,7 @@
 
     pagesEl.appendChild(page);
     state[domain.id] = { answers: {}, total: domain.questions.length };
+    domainById[domain.id] = domain;
   }
 
   function renderQuestion(domainId, qi, q) {
@@ -157,7 +214,7 @@
 
     const answered = Object.keys(ds.answers).length;
     const correct = Object.entries(ds.answers).reduce((n, [qi, chosen]) => {
-      const q = CURRICULUM.find(d => d.id === domainId).questions[qi];
+      const q = domainById[domainId].questions[qi];
       return n + (chosen === q.answer ? 1 : 0);
     }, 0);
 
@@ -180,13 +237,38 @@
     updateProgress(domainId);
   }
 
+  function setExam(examId) {
+    const exam = EXAMS.find((e) => e.id === examId) || EXAMS[0];
+    if (!exam) return;
+
+    examTabsEl.querySelectorAll("button").forEach((b) => {
+      b.classList.toggle("active", b.dataset.exam === exam.id);
+    });
+    // Show only this exam's section tabs.
+    tabsEl.querySelectorAll("button").forEach((b) => {
+      b.style.display = b.dataset.exam === exam.id ? "" : "none";
+    });
+
+    try { localStorage.setItem(EXAM_STORAGE_KEY, exam.id); } catch (_) {}
+
+    const domainId = lastDomainByExam[exam.id] || exam.curriculum[0].id;
+    setActive(domainId);
+  }
+
   function setActive(id) {
+    const domain = domainById[id];
+    if (!domain) return;
+
     tabsEl.querySelectorAll("button").forEach((b) => {
       b.classList.toggle("active", b.dataset.id === id);
     });
     pagesEl.querySelectorAll(".page").forEach((p) => {
       p.classList.toggle("active", p.dataset.id === id);
     });
+
+    const examId = pagesEl.querySelector(`.page[data-id="${id}"]`).dataset.exam;
+    lastDomainByExam[examId] = id;
+
     // On narrow screens, close the drawer after picking a section
     closeSidebar();
     // Scroll smoothly to top of main content
@@ -261,12 +343,22 @@
   });
 
   // Bootstrap
-  if (typeof CURRICULUM === "undefined") {
-    pagesEl.innerHTML = '<p style="color:var(--bad)">Failed to load questions.js</p>';
+  if (EXAMS.length === 0) {
+    pagesEl.innerHTML = '<p style="color:var(--bad)">Failed to load any question banks.</p>';
     return;
   }
-  CURRICULUM.forEach((d, i) => {
-    buildTab(d, i);
-    buildPage(d, i);
+  EXAMS.forEach((exam) => {
+    buildExamTab(exam);
+    exam.curriculum.forEach((domain) => {
+      buildTab(exam, domain);
+      buildPage(exam, domain);
+    });
   });
+
+  let initialExam = EXAMS[0].id;
+  try {
+    const saved = localStorage.getItem(EXAM_STORAGE_KEY);
+    if (saved && EXAMS.some((e) => e.id === saved)) initialExam = saved;
+  } catch (_) {}
+  setExam(initialExam);
 })();

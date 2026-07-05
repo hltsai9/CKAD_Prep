@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CKAD Practice Quiz</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B8%3C/text%3E%3C/svg%3E" />
+  <title>Kubestronaut Practice Quiz</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%91%E2%80%8D%F0%9F%9A%80%3C/text%3E%3C/svg%3E" />
 
   <!-- Apply saved theme before CSS paints to avoid flash of wrong theme. -->
   <script>
@@ -308,6 +308,41 @@
     }
     .sidebar-backdrop.show { display: block; }
 
+    /* Exam picker — row of pills above the section list */
+    nav.exam-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0 0 18px;
+    }
+    nav.exam-tabs button {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .03em;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    nav.exam-tabs button:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    nav.exam-tabs button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    nav.exam-tabs button.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-on);
+      box-shadow: var(--active-shadow);
+    }
+
     nav.tabs {
       display: flex;
       flex-direction: column;
@@ -367,6 +402,14 @@
       border-radius: 12px;
       margin-bottom: 16px;
       box-shadow: var(--shadow);
+    }
+    .domain-head .exam-tag {
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 6px;
     }
     .domain-head h2 { margin: 0 0 6px; font-size: 20px; color: var(--accent); }
     .domain-head p { margin: 0; color: var(--muted); font-size: 14px; }
@@ -576,8 +619,8 @@
         aria-expanded="false"
       >☰</button>
       <div class="header-title">
-        <h1>🌸 CKAD Practice Quiz</h1>
-        <p>Certified Kubernetes Application Developer — curriculum practice questions with official doc references.</p>
+        <h1>🧑‍🚀 Kubestronaut Practice Quiz</h1>
+        <p>CKA · CKAD · CKS · KCNA · KCSA — curriculum practice questions with official doc references.</p>
       </div>
       <div class="theme-switcher" id="themeSwitcher" role="group" aria-label="Color theme">
         <span class="label">Theme</span>
@@ -594,7 +637,9 @@
 
   <div class="layout">
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-title">Curriculum</div>
+      <div class="sidebar-title">Exam</div>
+      <nav class="exam-tabs" id="examTabs" aria-label="Certification exams"></nav>
+      <div class="sidebar-title">Sections</div>
       <nav class="tabs" id="tabs" aria-label="Curriculum domains"></nav>
     </aside>
 
@@ -603,15 +648,20 @@
         <div id="pages"></div>
 
         <footer class="site-footer">
-          Based on the official
-          <a href="https://github.com/cncf/curriculum" target="_blank" rel="noopener">CNCF CKAD curriculum</a>.
-          Answers link to <a href="https://kubernetes.io/docs/" target="_blank" rel="noopener">kubernetes.io</a>.
+          Covers all five <a href="https://www.cncf.io/training/kubestronaut/" target="_blank" rel="noopener">Kubestronaut</a>
+          certifications, based on the official
+          <a href="https://github.com/cncf/curriculum" target="_blank" rel="noopener">CNCF curricula</a>.
+          Answers link to <a href="https://kubernetes.io/docs/" target="_blank" rel="noopener">kubernetes.io</a> and other official docs.
         </footer>
       </div>
     </main>
   </div>
 
   <script src="questions.js"></script>
+  <script src="questions-cka.js"></script>
+  <script src="questions-cks.js"></script>
+  <script src="questions-kcna.js"></script>
+  <script src="questions-kcsa.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
